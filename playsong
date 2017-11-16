@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+import sys
+import os
+from subprocess import call
+from pathlib import Path
+
+MUSIC_PLAYER_COMMAND = "/usr/bin/vlc"
+
+def main():
+    songDir = str(Path.home()) + "/Music"
+    # print(songDir)
+    songList = findSongs(songDir)
+    songList = rateSongs(songList)
+    # print(songList)
+
+    song = maxIndex(songList)
+    print(songList[1][song], songList[2][song])
+    call([MUSIC_PLAYER_COMMAND, songList[1][song]])
+
+def findSongs(songDir):
+    songList = [[],[],[]]   # filename, full path, match rating
+    for root, subdirs, files in os.walk(songDir):
+        for song in files:
+            songList[0].append(song)
+            songList[1].append(os.path.join(root, song))
+            songList[2].append(0)
+
+    return songList
+
+def rateSongs(songList):
+    for argument in sys.argv[1:]:
+        for song in range(len(songList[0])):
+            if songList[0][song].lower().count(argument.lower()):
+                songList[2][song] += 1
+
+    return songList
+
+def maxIndex(songList):
+    song = 0
+    for number in range(len(songList[2])):
+        if songList[2][number] > songList[2][song]:
+            song = number
+
+    return song
+main()
